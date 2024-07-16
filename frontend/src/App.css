@@ -33,6 +33,10 @@
 .register{
   margin-left: 30%;
 }
+.login {
+  margin-left: 30%;
+  margin-top: 100px;
+}
 .appbutton {
   margin: 25px;
   padding: 10px;
@@ -40,3 +44,5 @@
   border: 1px solid;
   cursor: pointer;
 }
+
+
