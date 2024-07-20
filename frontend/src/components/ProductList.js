@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -42,7 +43,9 @@ export default function ProductList() {
           <li>${item.price}</li>
           <li>{item.category}</li>
           <li>{item.company}</li>
-          <li><button onClick={() => deleteProduct(item._id)}>Delete</button></li>
+          <li><button onClick={() => deleteProduct(item._id)}>Delete</button>
+              <Link to={`/update/${item._id}`}>Update</Link>
+          </li>
         </ul>
       ))}
     </div>
