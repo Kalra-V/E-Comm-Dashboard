@@ -17,7 +17,7 @@ const Login = () => {
         method:'post',
         body: JSON.stringify({email,password}),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
     })
     result = await result.json();
