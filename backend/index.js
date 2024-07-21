@@ -32,7 +32,7 @@ app.post("/login", async (req, resp) => {
     if (user) {
       Jwt.sign({user}, jwtKey, {expiresIn: "2h"} ,(err, token) => {
         if(err) {
-          resp.send({ result: "Something went wrong." });
+          return resp.send({ result: "Something went wrong." });
         }
         resp.send({user, auth: token})
       })
@@ -44,13 +44,13 @@ app.post("/login", async (req, resp) => {
   }
 });
 
-app.post("/add-product", async (req, resp) => {
+app.post("/add-product", verifyToken, async (req, resp) => {
   let product = new Product(req.body);
   let result = await product.save();
   resp.send(result);
 });
 
-app.get("/products", async (req, resp) => {
+app.get("/products", verifyToken, async (req, resp) => {
   let result = await Product.find();
   if (result.length > 0) {
     resp.send(result);
@@ -59,12 +59,12 @@ app.get("/products", async (req, resp) => {
   }
 });
 
-app.delete("/product/:id", async (req, resp) => {
+app.delete("/product/:id", verifyToken, async (req, resp) => {
   let result = await Product.deleteOne({ _id: req.params.id });
   resp.send(result);
 });
 
-app.get("/product/:id", async (req, resp) => {
+app.get("/product/:id", verifyToken, async (req, resp) => {
   let result = await Product.findOne({ _id: req.params.id });
   if (result) {
     resp.send(result);
@@ -73,7 +73,7 @@ app.get("/product/:id", async (req, resp) => {
   }
 });
 
-app.put("/product/:id", async (req, resp) => {
+app.put("/product/:id", verifyToken, async (req, resp) => {
   let result = await Product.updateOne({ _id: req.params.id }, 
     {
       $set: req.body
@@ -81,7 +81,7 @@ app.put("/product/:id", async (req, resp) => {
     resp.send(result);
 });
 
-app.get("/search/:key", async (req, resp) => {
+app.get("/search/:key", verifyToken,async (req, resp) => {
   let result = await Product.find({
     "$or" : [
       {name:{$regex:req.params.key}},
@@ -91,5 +91,21 @@ app.get("/search/:key", async (req, resp) => {
   })
   resp.send(result)
 })
+
+function verifyToken(req, resp, next) {
+  let token = req.headers['authorization']
+  if(token) {
+    token = token.split(' ')[1]
+    Jwt.verify(token, jwtKey, (err, valid) => {
+        if(err) {
+          resp.status(401).send({result: "Please provide valid token"})
+        } else {
+          next();
+        }
+    })
+  } else {
+    resp.status(403).send({result: "Please add token with header"})
+  }
+}
 
 app.listen(5000);
